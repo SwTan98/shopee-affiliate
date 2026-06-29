@@ -39,4 +39,14 @@ The server route exists solely to resolve short URLs — direct `shopee.com.my` 
 
 ### Styling
 
-All styles are scoped CSS in `app/app.vue` using CSS custom properties (design tokens defined on `.page`). Tailwind is installed but the app does not use Tailwind utility classes in `app.vue` — the custom token system is used directly. The Tailwind config extends the default theme with a `shopee` color palette but it is not currently used.
+Styling is done with Tailwind utility classes directly in `app/app.vue` templates (e.g. `bg-base`, `text-sand`, `border-wire`, `bg-surface-hi`). `tailwind.config.js` extends the default theme with a custom dark-mode color palette — `base`, `surface` (+ `hi`), `wire` (+ `hi`), `sand` (+ `2`/`3`), `amber` (+ `dim`/`bg`/`border`), `green`, `red` (each with `bg`/`border` variants), plus an unused legacy `shopee` palette. When adding new UI, reuse these token names rather than introducing raw hex values or new ad-hoc colors.
+
+The only hand-written CSS lives in two unscoped/scoped `<style>` blocks at the bottom of `app.vue`: the `.reveal-*` transition classes for the result reveal animation (with a `prefers-reduced-motion` override), and a global `html, body` background-color rule (kept in sync with `theme-color` in `nuxt.config.ts`) to avoid a flash of mismatched browser chrome on Safari mobile.
+
+### Accessibility conventions
+
+Recent commits hardened `app.vue` for accessibility — follow these patterns when extending the UI:
+- Interactive elements use `focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-2` instead of relying on default browser focus styles.
+- An `aria-live="polite"` region (`liveMessage`) announces loading/result state changes for screen readers; update it when adding new async states.
+- Buttons that trigger async work set `:aria-busy="loading"`; disabled states use `disabled:opacity-[0.35] disabled:cursor-not-allowed` rather than hiding controls.
+- Text/background color pairs are chosen to meet WCAG AA contrast (4.5:1) — check contrast before introducing new color combinations from the palette.
