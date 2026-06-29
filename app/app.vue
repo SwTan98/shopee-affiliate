@@ -1,32 +1,32 @@
 <template>
-  <div class="page">
+  <div class="min-h-screen flex flex-col bg-base text-sand">
 
-    <header class="header">
-      <div class="header-inner">
+    <header class="px-6 pt-5 pb-4 border-b border-wire">
+      <div class="max-w-[480px] mx-auto flex items-center gap-2.5">
         <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c47c2a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
           <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
         </svg>
-        <span class="header-title">shopee affiliate</span>
+        <span class="font-mono text-xs tracking-[0.14em] uppercase text-sand-2">shopee affiliate</span>
       </div>
     </header>
 
-    <main class="main">
-      <div class="col">
+    <main class="flex-1 flex items-center justify-center px-6 pt-12 pb-16">
+      <div class="w-full max-w-[480px] flex flex-col gap-4">
 
         <!-- Screen-reader live region -->
         <div aria-live="polite" aria-atomic="true" class="sr-only">{{ liveMessage }}</div>
 
         <!-- Input -->
-        <div class="section">
-          <label class="eyebrow" for="url-input">Paste a Shopee link</label>
+        <div class="flex flex-col gap-2">
+          <label class="text-[11px] tracking-[0.12em] uppercase text-sand-2 font-medium" for="url-input">Paste a Shopee link</label>
           <input
             id="url-input"
             v-model="rawUrl"
             type="url"
             placeholder="https://my.shp.ee/… or https://shopee.com.my/…"
-            class="url-input"
-            :class="{ 'url-input--filled': rawUrl }"
+            class="w-full bg-surface border border-wire rounded-[10px] py-[13px] px-4 text-base font-mono text-sand caret-amber outline-none transition-colors duration-150 placeholder:text-sand-2 focus:border-wire-hi focus:bg-surface-hi focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-2"
+            :class="{ 'border-wire-hi': rawUrl }"
             autocomplete="off"
             spellcheck="false"
             @keydown.enter="generate"
@@ -34,8 +34,7 @@
         </div>
 
         <button
-          class="cta"
-          :class="{ 'cta--disabled': !rawUrl.trim() || loading }"
+          class="w-full py-[13px] rounded-[10px] bg-surface-hi border border-wire text-sand-2 text-[13px] font-medium cursor-pointer transition-colors duration-150 tracking-[0.02em] outline-none hover:enabled:bg-wire hover:enabled:text-sand hover:enabled:border-wire-hi focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-2 disabled:opacity-[0.35] disabled:cursor-not-allowed"
           :disabled="!rawUrl.trim() || loading"
           :aria-busy="loading"
           @click="generate"
@@ -44,35 +43,35 @@
         </button>
 
         <!-- Error -->
-        <p v-if="error" class="error-msg" role="alert">{{ error }}</p>
+        <p v-if="error" class="text-xs text-red bg-red-bg border border-red-border rounded-lg py-[10px] px-[14px]" role="alert">{{ error }}</p>
 
         <!-- Transform result -->
         <Transition name="reveal">
-          <div v-if="result" class="result">
+          <div v-if="result" class="flex flex-col gap-4">
 
             <!-- Transform bridge -->
-            <div class="bridge" aria-hidden="true">
-              <div class="bridge-line" />
-              <div class="bridge-tag">
+            <div class="flex items-center gap-3" aria-hidden="true">
+              <div class="flex-1 h-px bg-wire" />
+              <div class="flex items-center gap-[5px] bg-amber-bg border border-amber-border rounded-full px-3 py-[5px] font-mono text-[11px] text-amber whitespace-nowrap">
                 Affiliate ID: <strong>{{ affiliateId }}</strong>
               </div>
-              <div class="bridge-line" />
+              <div class="flex-1 h-px bg-wire" />
             </div>
 
             <!-- Output -->
-            <div class="section">
-              <p id="tagged-link-label" class="eyebrow">Tagged link</p>
+            <div class="flex flex-col gap-2">
+              <p id="tagged-link-label" class="text-[11px] tracking-[0.12em] uppercase text-sand-2 font-medium">Tagged link</p>
               <div
-                class="output-url"
+                class="bg-surface border border-wire rounded-[10px] py-[13px] px-4 text-[13px] font-mono text-sand-2 break-all leading-[1.6] cursor-text select-all outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-2"
                 aria-labelledby="tagged-link-label"
                 tabindex="0"
               >{{ result.affiliateLink }}</div>
             </div>
 
-            <div class="actions">
+            <div class="flex gap-2">
               <button
-                class="action-btn"
-                :class="{ 'action-btn--copied': copied }"
+                class="flex-1 flex items-center justify-center gap-[6px] py-[11px] px-4 rounded-lg bg-surface-hi border border-wire text-sand-2 text-[13px] font-medium cursor-pointer transition-colors duration-150 outline-none hover:bg-wire hover:text-sand hover:border-wire-hi focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-2"
+                :class="copied ? ['!bg-green-bg', '!border-green-border', '!text-green'] : []"
                 :aria-label="copied ? 'Link copied to clipboard' : 'Copy link'"
                 @click="copy"
               >
@@ -89,7 +88,7 @@
                 :href="result.affiliateLink"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="action-btn action-btn--open"
+                class="flex-[0.6] flex items-center justify-center gap-[6px] py-[11px] px-4 rounded-lg bg-surface-hi border border-wire text-sand-2 text-[13px] font-medium no-underline transition-colors duration-150 outline-none hover:bg-wire hover:text-sand hover:border-wire-hi focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber focus-visible:outline-offset-2"
                 aria-label="Open affiliate link in new tab"
               >
                 Open
@@ -102,10 +101,10 @@
             </div>
 
             <!-- Product IDs -->
-            <div v-if="result.shopId || result.itemId" class="meta">
-              <span v-if="result.shopId">shop <code>{{ result.shopId }}</code></span>
-              <span v-if="result.shopId && result.itemId" class="meta-sep">·</span>
-              <span v-if="result.itemId">item <code>{{ result.itemId }}</code></span>
+            <div v-if="result.shopId || result.itemId" class="flex items-center gap-2 text-[11px] text-sand-2 py-0.5">
+              <span v-if="result.shopId">shop <code class="font-mono text-[11px] text-sand-2">{{ result.shopId }}</code></span>
+              <span v-if="result.shopId && result.itemId" class="text-wire-hi">·</span>
+              <span v-if="result.itemId">item <code class="font-mono text-[11px] text-sand-2">{{ result.itemId }}</code></span>
             </div>
 
           </div>
@@ -114,7 +113,7 @@
       </div>
     </main>
 
-    <footer class="footer">
+    <footer class="text-center pb-6 font-mono text-[11px] text-sand-2 tracking-[0.05em]">
       affiliate_id={{ affiliateId || '—' }}
     </footer>
 
@@ -205,315 +204,17 @@ async function copy() {
 </script>
 
 <style scoped>
-/* ── Palette + Layout ── */
-.page {
-  --bg:          #0f0e0d;
-  --surface:     #171614;
-  --surface-2:   #1e1c19;
-  --border:      #2e2b25;
-  --border-2:    #3e3b33;
-  --text:        #d4c5a9;
-  --text-2:      #917e6e;   /* bumped from #8d7d6d — ≥4.5:1 on --surface-2 */
-  --text-3:      #5e5650;   /* below WCAG AA — never use for readable text */
-  --amber:       #c47c2a;
-  --amber-dim:   #7a4e1a;
-  --amber-bg:    #1e1710;
-  --amber-border:#3d2e18;
-  --green:       #6aaa80;
-  --green-bg:    #111e15;
-  --green-border:#1e3d28;
-  --red:         #b06a5a;   /* lightened from #a06050 — ≥4.5:1 on --red-bg */
-  --red-bg:      #1a1010;
-  --red-border:  #3d2018;
-
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg);
-  color: var(--text);
-}
-
-/* ── Utility ── */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
-}
-
-.header {
-  padding: 20px 24px 16px;
-  border-bottom: 1px solid var(--border);
-}
-
-.header-inner {
-  max-width: 480px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.header-title {
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-2);
-  font-family: ui-monospace, monospace;
-}
-
-.main {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px 64px;
-}
-
-.col {
-  width: 100%;
-  max-width: 480px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.footer {
-  text-align: center;
-  padding: 0 0 24px;
-  font-size: 11px;
-  font-family: ui-monospace, monospace;
-  color: var(--text-2);
-  letter-spacing: 0.05em;
-}
-
-/* ── Form ── */
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-2);
-  font-weight: 500;
-  margin: 0;
-}
-
-.url-input {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 13px 16px;
-  font-size: 16px;
-  font-family: ui-monospace, monospace;
-  color: var(--text);
-  caret-color: var(--amber);
-  outline: none;
-  transition: border-color 0.15s, background 0.15s;
-  box-sizing: border-box;
-}
-
-.url-input::placeholder {
-  color: var(--text-2);
-}
-
-.url-input:focus {
-  border-color: var(--border-2);
-  background: var(--surface-2);
-}
-
-.url-input:focus-visible {
-  outline: 2px solid var(--amber);
-  outline-offset: 2px;
-}
-
-.url-input--filled {
-  border-color: var(--border-2);
-}
-
-.cta {
-  width: 100%;
-  padding: 13px;
-  border-radius: 10px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-  letter-spacing: 0.02em;
-}
-
-.cta:hover:not(.cta--disabled) {
-  background: var(--border);
-  color: var(--text);
-  border-color: var(--border-2);
-}
-
-.cta:focus-visible {
-  outline: 2px solid var(--amber);
-  outline-offset: 2px;
-}
-
-.cta--disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.error-msg {
-  font-size: 12px;
-  color: var(--red);
-  background: var(--red-bg);
-  border: 1px solid var(--red-border);
-  border-radius: 8px;
-  padding: 10px 14px;
-  margin: 0;
-}
-
-/* ── Transform bridge ── */
-.bridge {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.result {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.bridge-line {
-  flex: 1;
-  height: 1px;
-  background: var(--border);
-}
-
-.bridge-tag {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  background: var(--amber-bg);
-  border: 1px solid var(--amber-border);
-  border-radius: 100px;
-  padding: 5px 12px;
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  color: var(--amber);
-  white-space: nowrap;
-}
-
-/* ── Output ── */
-.output-url {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 13px 16px;
-  font-size: 13px;
-  font-family: ui-monospace, monospace;
-  color: var(--text-2);
-  word-break: break-all;
-  line-height: 1.6;
-  cursor: text;
-  user-select: all;
-}
-
-.output-url:focus-visible {
-  outline: 2px solid var(--amber);
-  outline-offset: 2px;
-}
-
-/* ── Actions ── */
-.actions {
-  display: flex;
-  gap: 8px;
-}
-
-.action-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 11px 16px;
-  border-radius: 8px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-  text-decoration: none;
-}
-
-.action-btn:hover {
-  background: var(--border);
-  color: var(--text);
-  border-color: var(--border-2);
-}
-
-.action-btn:focus-visible {
-  outline: 2px solid var(--amber);
-  outline-offset: 2px;
-}
-
-.action-btn--copied {
-  background: var(--green-bg) !important;
-  border-color: var(--green-border) !important;
-  color: var(--green) !important;
-}
-
-.action-btn--open {
-  flex: 0.6;
-}
-
-/* ── Meta ── */
-.meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  color: var(--text-2);
-  padding: 2px 0;
-}
-
-.meta code {
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
-  color: var(--text-2);
-}
-
-.meta-sep {
-  color: var(--border-2);
-}
-
-/* ── Transition ── */
 .reveal-enter-active {
   transition: opacity 0.25s ease, transform 0.25s ease;
 }
-
 .reveal-enter-from {
   opacity: 0;
   transform: translateY(6px);
 }
-
 .reveal-enter-to {
   opacity: 1;
   transform: translateY(0);
 }
-
 @media (prefers-reduced-motion: reduce) {
   .reveal-enter-active {
     transition: none;
