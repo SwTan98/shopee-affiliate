@@ -314,7 +314,7 @@ async function copy() {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 13px 16px;
-  font-size: 13px;
+  font-size: 16px;
   font-family: ui-monospace, monospace;
   color: var(--text);
   caret-color: var(--amber);
