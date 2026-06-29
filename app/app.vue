@@ -213,8 +213,8 @@ async function copy() {
   --border:      #2e2b25;
   --border-2:    #3e3b33;
   --text:        #d4c5a9;
-  --text-2:      #8d7d6d;   /* bumped from #7a7065 — ~5:1 on bg */
-  --text-3:      #5e5650;   /* bumped from #4a4840 — decorative use only */
+  --text-2:      #917e6e;   /* bumped from #8d7d6d — ≥4.5:1 on --surface-2 */
+  --text-3:      #5e5650;   /* below WCAG AA — never use for readable text */
   --amber:       #c47c2a;
   --amber-dim:   #7a4e1a;
   --amber-bg:    #1e1710;
@@ -222,7 +222,7 @@ async function copy() {
   --green:       #6aaa80;
   --green-bg:    #111e15;
   --green-border:#1e3d28;
-  --red:         #a06050;
+  --red:         #b06a5a;   /* lightened from #a06050 — ≥4.5:1 on --red-bg */
   --red-bg:      #1a1010;
   --red-border:  #3d2018;
 
@@ -263,7 +263,7 @@ async function copy() {
   font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--text-2);
   font-family: ui-monospace, monospace;
 }
 
@@ -288,7 +288,7 @@ async function copy() {
   padding: 0 0 24px;
   font-size: 11px;
   font-family: ui-monospace, monospace;
-  color: var(--text-3);
+  color: var(--text-2);
   letter-spacing: 0.05em;
 }
 
@@ -324,7 +324,7 @@ async function copy() {
 }
 
 .url-input::placeholder {
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .url-input:focus {
@@ -485,7 +485,7 @@ async function copy() {
   align-items: center;
   gap: 8px;
   font-size: 11px;
-  color: var(--text-3);
+  color: var(--text-2);
   padding: 2px 0;
 }
 
