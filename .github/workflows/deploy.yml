@@ -22,7 +22,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: npm
 
       - name: Install dependencies
@@ -32,8 +32,6 @@ jobs:
         run: npm run generate
         env:
           NUXT_PUBLIC_AFFILIATE_ID: ${{ secrets.AFFILIATE_ID }}
-          # Sets the base path to /repo-name/ for GitHub Pages sub-path hosting
-          NUXT_APP_BASE_URL: /${{ github.event.repository.name }}/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
