@@ -15,6 +15,7 @@ export default defineNuxtConfig({
           content: "Generate Shopee affiliate links from any product URL",
         },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { name: "theme-color", content: "#0f0e0d" },
       ],
     },
   },
