@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   modules: ["@nuxtjs/tailwindcss"],
   runtimeConfig: {
     public: {
-      affiliateId: "",
+      affiliateId: process.env.NUXT_PUBLIC_AFFILIATE_ID || '',
     },
   },
   app: {

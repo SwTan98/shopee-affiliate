@@ -32,11 +32,11 @@
 
         <button
           class="cta"
-          :class="{ 'cta--disabled': !rawUrl.trim() }"
-          :disabled="!rawUrl.trim()"
+          :class="{ 'cta--disabled': !rawUrl.trim() || loading }"
+          :disabled="!rawUrl.trim() || loading"
           @click="generate"
         >
-          Add affiliate tag
+          {{ loading ? 'Resolving…' : 'Add affiliate tag' }}
         </button>
 
         <!-- Error -->
@@ -114,6 +114,7 @@ const affiliateId = config.public.affiliateId as string
 const rawUrl = ref('')
 const error = ref('')
 const copied = ref(false)
+const loading = ref(false)
 
 interface Result {
   shopId: string | null
@@ -132,23 +133,37 @@ function parseShopeeUrl(url: string): { shopId: string | null; itemId: string | 
 function buildAffiliateLink(productUrl: string): string {
   const url = new URL(productUrl)
   url.search = ''
-  if (affiliateId) url.searchParams.set('affiliate_id', affiliateId)
-  return url.toString()
+  const params = new URLSearchParams({ origin_link: url.toString() })
+  if (affiliateId) params.set('affiliate_id', affiliateId)
+  return `https://s.shopee.com.my/an_redir?${params.toString()}`
 }
 
-function generate() {
+function isShortUrl(url: string) {
+  return /shp\.ee|shope\.ee/.test(url)
+}
+
+async function resolveShortUrl(url: string): Promise<string> {
+  const data = await $fetch<{ url: string }>('/api/resolve', { query: { url } })
+  return data.url
+}
+
+async function generate() {
   const url = rawUrl.value.trim()
   if (!url) return
 
   error.value = ''
   result.value = null
+  loading.value = true
 
   try {
-    const { shopId, itemId } = parseShopeeUrl(url)
-    const affiliateLink = buildAffiliateLink(url)
+    const resolvedUrl = isShortUrl(url) ? await resolveShortUrl(url) : url
+    const { shopId, itemId } = parseShopeeUrl(resolvedUrl)
+    const affiliateLink = buildAffiliateLink(resolvedUrl)
     result.value = { shopId, itemId, affiliateLink }
-  } catch {
-    error.value = 'Invalid URL — paste a full Shopee product link or short link.'
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Invalid URL — paste a full shopee.com.my product URL.'
+  } finally {
+    loading.value = false
   }
 }
 
