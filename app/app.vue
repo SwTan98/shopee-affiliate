@@ -520,3 +520,10 @@ async function copy() {
   }
 }
 </style>
+
+<style>
+html, body {
+  background-color: #0f0e0d;
+  margin: 0;
+}
+</style>
