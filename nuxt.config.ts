@@ -12,6 +12,9 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: "Shopee Affiliate Link Generator",
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
       meta: [
         {
           name: "description",
