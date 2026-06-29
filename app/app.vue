@@ -3,7 +3,7 @@
 
     <header class="header">
       <div class="header-inner">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c47c2a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c47c2a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
           <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
         </svg>
@@ -14,8 +14,11 @@
     <main class="main">
       <div class="col">
 
+        <!-- Screen-reader live region -->
+        <div aria-live="polite" aria-atomic="true" class="sr-only">{{ liveMessage }}</div>
+
         <!-- Input -->
-        <section class="section">
+        <div class="section">
           <label class="eyebrow" for="url-input">Paste a Shopee link</label>
           <input
             id="url-input"
@@ -28,26 +31,27 @@
             spellcheck="false"
             @keydown.enter="generate"
           />
-        </section>
+        </div>
 
         <button
           class="cta"
           :class="{ 'cta--disabled': !rawUrl.trim() || loading }"
           :disabled="!rawUrl.trim() || loading"
+          :aria-busy="loading"
           @click="generate"
         >
           {{ loading ? 'Resolving…' : 'Add affiliate tag' }}
         </button>
 
         <!-- Error -->
-        <p v-if="error" class="error-msg">{{ error }}</p>
+        <p v-if="error" class="error-msg" role="alert">{{ error }}</p>
 
         <!-- Transform result -->
         <Transition name="reveal">
           <div v-if="result" class="result">
 
             <!-- Transform bridge -->
-            <div class="bridge">
+            <div class="bridge" aria-hidden="true">
               <div class="bridge-line" />
               <div class="bridge-tag">
                 Affiliate ID: <strong>{{ affiliateId }}</strong>
@@ -56,17 +60,26 @@
             </div>
 
             <!-- Output -->
-            <section class="section">
-              <label class="eyebrow">Tagged link</label>
-              <div class="output-url">{{ result.affiliateLink }}</div>
-            </section>
+            <div class="section">
+              <p id="tagged-link-label" class="eyebrow">Tagged link</p>
+              <div
+                class="output-url"
+                aria-labelledby="tagged-link-label"
+                tabindex="0"
+              >{{ result.affiliateLink }}</div>
+            </div>
 
             <div class="actions">
-              <button class="action-btn" :class="{ 'action-btn--copied': copied }" @click="copy">
-                <svg v-if="copied" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <button
+                class="action-btn"
+                :class="{ 'action-btn--copied': copied }"
+                :aria-label="copied ? 'Link copied to clipboard' : 'Copy link'"
+                @click="copy"
+              >
+                <svg v-if="copied" aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
-                <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg v-else aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                   <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
                 </svg>
@@ -77,9 +90,10 @@
                 target="_blank"
                 rel="noopener noreferrer"
                 class="action-btn action-btn--open"
+                aria-label="Open affiliate link in new tab"
               >
                 Open
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
                   <polyline points="15 3 21 3 21 9"/>
                   <line x1="10" y1="14" x2="21" y2="3"/>
@@ -123,6 +137,12 @@ interface Result {
 }
 
 const result = ref<Result | null>(null)
+
+const liveMessage = computed(() => {
+  if (loading.value) return 'Generating affiliate link…'
+  if (result.value) return 'Affiliate link ready.'
+  return ''
+})
 
 function parseShopeeUrl(url: string): { shopId: string | null; itemId: string | null } {
   const match = url.match(/shopee\.com\.my\/[^?#]*[/.-](\d{6,})\.(\d{8,})/)
@@ -193,8 +213,8 @@ async function copy() {
   --border:      #2e2b25;
   --border-2:    #3e3b33;
   --text:        #d4c5a9;
-  --text-2:      #7a7065;
-  --text-3:      #4a4840;
+  --text-2:      #8d7d6d;   /* bumped from #7a7065 — ~5:1 on bg */
+  --text-3:      #5e5650;   /* bumped from #4a4840 — decorative use only */
   --amber:       #c47c2a;
   --amber-dim:   #7a4e1a;
   --amber-bg:    #1e1710;
@@ -211,6 +231,19 @@ async function copy() {
   flex-direction: column;
   background: var(--bg);
   color: var(--text);
+}
+
+/* ── Utility ── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 .header {
@@ -267,11 +300,12 @@ async function copy() {
 }
 
 .eyebrow {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-2);
   font-weight: 500;
+  margin: 0;
 }
 
 .url-input {
@@ -298,6 +332,11 @@ async function copy() {
   background: var(--surface-2);
 }
 
+.url-input:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
 .url-input--filled {
   border-color: var(--border-2);
 }
@@ -320,6 +359,11 @@ async function copy() {
   background: var(--border);
   color: var(--text);
   border-color: var(--border-2);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
 }
 
 .cta--disabled {
@@ -370,17 +414,6 @@ async function copy() {
   white-space: nowrap;
 }
 
-.bridge-plus {
-  color: var(--amber-dim);
-  font-size: 13px;
-  line-height: 1;
-}
-
-.bridge-param strong {
-  font-weight: 600;
-  color: var(--amber);
-}
-
 /* ── Output ── */
 .output-url {
   background: var(--surface);
@@ -392,6 +425,13 @@ async function copy() {
   color: var(--text-2);
   word-break: break-all;
   line-height: 1.6;
+  cursor: text;
+  user-select: all;
+}
+
+.output-url:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
 }
 
 /* ── Actions ── */
@@ -422,6 +462,11 @@ async function copy() {
   background: var(--border);
   color: var(--text);
   border-color: var(--border-2);
+}
+
+.action-btn:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
 }
 
 .action-btn--copied {
@@ -467,5 +512,11 @@ async function copy() {
 .reveal-enter-to {
   opacity: 1;
   transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-enter-active {
+    transition: none;
+  }
 }
 </style>
