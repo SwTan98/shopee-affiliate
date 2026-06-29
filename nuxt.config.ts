@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
   ssr: false,
   modules: ["@nuxtjs/tailwindcss"],
+  components: [
+    { path: '~/components', pathPrefix: false },
+  ],
   runtimeConfig: {
     public: {
       affiliateId: process.env.NUXT_PUBLIC_AFFILIATE_ID || '',
