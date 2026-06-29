@@ -1,6 +1,9 @@
 export default defineNuxtConfig({
   ssr: false,
   modules: ["@nuxtjs/tailwindcss"],
+  components: [
+    { path: '~/components', pathPrefix: false },
+  ],
   runtimeConfig: {
     public: {
       affiliateId: process.env.NUXT_PUBLIC_AFFILIATE_ID || '',
@@ -9,6 +12,9 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: "Shopee Affiliate Link Generator",
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
       meta: [
         {
           name: "description",
