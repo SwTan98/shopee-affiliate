@@ -13,7 +13,9 @@ export function parseShopeeUrl(url: string): { shopId: string | null; itemId: st
 export function buildAffiliateLink(productUrl: string, affiliateId: string): string {
   const url = new URL(productUrl)
   url.search = ''
-  const params = new URLSearchParams({ origin_link: url.toString() })
+  const { shopId, itemId } = parseShopeeUrl(url.toString())
+  const cleanUrl = shopId && itemId ? `${url.origin}/product-i.${shopId}.${itemId}` : url.toString()
+  const params = new URLSearchParams({ origin_link: cleanUrl })
   if (affiliateId) params.set('affiliate_id', affiliateId)
   return `https://s.shopee.com.my/an_redir?${params.toString()}`
 }

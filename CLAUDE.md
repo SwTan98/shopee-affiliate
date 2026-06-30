@@ -64,8 +64,8 @@ public/
 1. User pastes a URL; state is managed by `useAffiliateLink()` in `app/composables/useAffiliateLink.ts`.
 2. `isShortUrl()` in `app/utils/shopee.ts` checks for `shp.ee` / `shope.ee` hosts.
 3. If short, the client calls `GET /api/resolve?url=<short-url>`; `server/api/resolve.ts` follows redirects server-side (bypassing CORS) and returns the resolved `shopee.com.my` URL.
-4. `parseShopeeUrl()` extracts `shopId` and `itemId` via regex (`/shopee\.com\.my\/[^?#]*[/.-](\d{6,})\.(\d{8,})/`).
-5. `buildAffiliateLink()` strips the query string, then constructs `https://s.shopee.com.my/an_redir?origin_link=<clean-url>&affiliate_id=<id>`.
+4. `parseShopeeUrl()` extracts `shopId` and `itemId` via regex (`/shopee\.com\.my\/[^?#]*[/.-](\d{6,})\.(\d{8,})/`); it decodes its input first, so it can read IDs straight out of a raw, still-wrapped affiliate URL too.
+5. `buildAffiliateLink()` strips the query string and, when `shopId`/`itemId` are found, shaves the URL down to the canonical `https://shopee.com.my/product-i.<shopId>.<itemId>` form (dropping the descriptive title slug). It then constructs `https://s.shopee.com.my/an_redir?origin_link=<clean-url>&affiliate_id=<id>`. URLs without extractable IDs (e.g. non-product pages) fall back to the full query-stripped URL.
 
 The server route exists solely to resolve short URLs — direct `shopee.com.my` links are handled entirely client-side without a network round trip.
 

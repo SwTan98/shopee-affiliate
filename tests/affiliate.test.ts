@@ -61,6 +61,19 @@ describe('buildAffiliateLink', () => {
     expect(link).toContain('origin_link=')
   })
 
+  it('shaves off the descriptive title slug, keeping only domain + product-i.{shopId}.{itemId}', () => {
+    const url = 'https://shopee.com.my/Tefal-Home-Chef-Smart-Multicooker-(6L)-Free-SS-Inner-Pot-CY601-XA622D-i.23746946.23471758432'
+    const link = buildAffiliateLink(url, 'aff123')
+    expect(link).toBe(
+      'https://s.shopee.com.my/an_redir?origin_link=https%3A%2F%2Fshopee.com.my%2Fproduct-i.23746946.23471758432&affiliate_id=aff123'
+    )
+  })
+
+  it('falls back to the full stripped URL when no product IDs are found', () => {
+    const link = buildAffiliateLink('https://shopee.com.my/some-category-page?x=1', 'aff123')
+    expect(link).toContain(encodeURIComponent('https://shopee.com.my/some-category-page'))
+  })
+
   it('always points to the s.shopee.com.my redirect endpoint', () => {
     const link = buildAffiliateLink('https://shopee.com.my/product-i.123456.12345678', 'x')
     expect(link.startsWith('https://s.shopee.com.my/an_redir?')).toBe(true)
