@@ -1,5 +1,11 @@
 export function parseShopeeUrl(url: string): { shopId: string | null; itemId: string | null } {
-  const match = url.match(/shopee\.com\.my\/[^?#]*[/.-](\d{6,})\.(\d{8,})/)
+  let decoded = url
+  try {
+    decoded = decodeURIComponent(url)
+  } catch {
+    // malformed percent-encoding (e.g. a literal "%" in the path) — fall back to raw string
+  }
+  const match = decoded.match(/shopee\.com\.my\/[^?#]*[/.-](\d{6,})\.(\d{8,})/)
   if (match) return { shopId: match[1], itemId: match[2] }
   return { shopId: null, itemId: null }
 }

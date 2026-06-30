@@ -35,6 +35,16 @@ describe('parseShopeeUrl', () => {
     const url = 'https://shopee.com.my/product-i.123456.1234567'
     expect(parseShopeeUrl(url)).toEqual({ shopId: null, itemId: null })
   })
+
+  it('extracts shopId and itemId directly from a raw, still-wrapped affiliate URL', () => {
+    const affiliateLink = 'https://s.shopee.com.my/an_redir?origin_link=https%3A%2F%2Fshopee.com.my%2Fproduct-i.123456.12345678&affiliate_id=aff123'
+    expect(parseShopeeUrl(affiliateLink)).toEqual({ shopId: '123456', itemId: '12345678' })
+  })
+
+  it('falls back to matching the raw string on malformed percent-encoding', () => {
+    const url = 'https://shopee.com.my/50%-off-i.123456.12345678'
+    expect(parseShopeeUrl(url)).toEqual({ shopId: '123456', itemId: '12345678' })
+  })
 })
 
 describe('buildAffiliateLink', () => {
