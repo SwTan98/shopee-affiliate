@@ -57,6 +57,10 @@ tests/
   affiliate.test.ts              # unit tests for shopee.ts pure functions
 public/
   favicon.svg                    # rounded-square badge reusing AppLogo paths
+  favicon.ico                    # legacy/Safari<17 raster fallback
+  apple-touch-icon.png           # iOS home screen icon
+  icon-192.png, icon-512.png     # Android/Chrome install icons
+  site.webmanifest               # references icon-192/512 for home-screen install
 ```
 
 ### Link resolution flow
@@ -80,6 +84,8 @@ Hand-written CSS is minimal:
 ### Favicon and logo
 
 `AppLogo.vue` is the single source of truth for the chain-link icon SVG paths. `public/favicon.svg` reuses the same paths wrapped in a rounded-square background (`fill="#1e1710"`) so it reads on any browser chrome. `nuxt.config.ts` registers it via `app.head.link`.
+
+The SVG favicon only renders in browsers that support `rel="icon" type="image/svg+xml"` (Safari added support in v17). For everywhere else, `public/favicon.ico` (16/32/48 multi-res, same rounded-badge artwork), `public/apple-touch-icon.png` (180×180, iOS home screen), and `public/icon-192.png`/`public/icon-512.png` + `public/site.webmanifest` (Android/Chrome home-screen install icon) provide raster fallbacks. These are hand-generated, full-bleed-square renders of the same chain-link artwork (no corner rounding on the touch-icon/manifest variants, since iOS/Android apply their own mask) — regenerate them by hand if `AppLogo.vue`'s paths or colors change; there's no build-time generation step.
 
 ### Accessibility conventions
 
