@@ -1,4 +1,4 @@
-import { parseShopeeUrl, buildAffiliateLink, isShortUrl } from '~/utils/shopee'
+import { parseShopeeUrl, buildAffiliateLink, isShortUrl, unwrapAffiliateLink } from '~/utils/shopee'
 
 export interface AffiliateResult {
   shopId: string | null
@@ -35,7 +35,8 @@ export function useAffiliateLink() {
     loading.value = true
 
     try {
-      const resolvedUrl = isShortUrl(url) ? await resolveShortUrl(url) : url
+      const unwrapped = unwrapAffiliateLink(url)
+      const resolvedUrl = isShortUrl(unwrapped) ? await resolveShortUrl(unwrapped) : unwrapped
       const { shopId, itemId } = parseShopeeUrl(resolvedUrl)
       const affiliateLink = buildAffiliateLink(resolvedUrl, affiliateId)
       result.value = { shopId, itemId, affiliateLink }

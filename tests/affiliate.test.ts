@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseShopeeUrl, buildAffiliateLink, isShortUrl } from '../app/utils/shopee'
+import { parseShopeeUrl, buildAffiliateLink, isShortUrl, unwrapAffiliateLink } from '../app/utils/shopee'
 
 describe('parseShopeeUrl', () => {
   it('extracts shopId and itemId from a standard product URL', () => {
@@ -54,6 +54,34 @@ describe('buildAffiliateLink', () => {
   it('always points to the s.shopee.com.my redirect endpoint', () => {
     const link = buildAffiliateLink('https://shopee.com.my/product-i.123456.12345678', 'x')
     expect(link.startsWith('https://s.shopee.com.my/an_redir?')).toBe(true)
+  })
+})
+
+describe('unwrapAffiliateLink', () => {
+  it('extracts origin_link from a valid affiliate redirect URL', () => {
+    const affiliateLink = 'https://s.shopee.com.my/an_redir?origin_link=https%3A%2F%2Fshopee.com.my%2Fproduct-i.123456.12345678&affiliate_id=aff123'
+    expect(unwrapAffiliateLink(affiliateLink)).toBe('https://shopee.com.my/product-i.123456.12345678')
+  })
+
+  it('passes through a regular shopee.com.my product URL unchanged', () => {
+    const url = 'https://shopee.com.my/product-i.123456.12345678'
+    expect(unwrapAffiliateLink(url)).toBe(url)
+  })
+
+  it('passes through an unrelated URL unchanged', () => {
+    const url = 'https://example.com/some-page'
+    expect(unwrapAffiliateLink(url)).toBe(url)
+  })
+
+  it('returns original when affiliate URL has no origin_link param', () => {
+    const url = 'https://s.shopee.com.my/an_redir?affiliate_id=aff123'
+    expect(unwrapAffiliateLink(url)).toBe(url)
+  })
+
+  it('is idempotent: round-trip through buildAffiliateLink then back', () => {
+    const productUrl = 'https://shopee.com.my/product-i.123456.12345678'
+    const affiliate = buildAffiliateLink(productUrl, 'aff123')
+    expect(unwrapAffiliateLink(affiliate)).toBe(productUrl)
   })
 })
 

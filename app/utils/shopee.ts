@@ -15,3 +15,16 @@ export function buildAffiliateLink(productUrl: string, affiliateId: string): str
 export function isShortUrl(url: string): boolean {
   return /shp\.ee|shope\.ee/.test(url)
 }
+
+export function unwrapAffiliateLink(url: string): string {
+  try {
+    const parsed = new URL(url)
+    if (parsed.hostname === 's.shopee.com.my' && parsed.pathname === '/an_redir') {
+      const originLink = parsed.searchParams.get('origin_link')
+      if (originLink) return originLink
+    }
+  } catch {
+    // not a valid URL, fall through
+  }
+  return url
+}
