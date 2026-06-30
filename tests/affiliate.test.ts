@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseShopeeUrl, buildAffiliateLink, isShortUrl } from '../app/utils/shopee'
+import { parseShopeeUrl, buildAffiliateLink, isShortUrl, unwrapAffiliateLink } from '../app/utils/shopee'
 
 describe('parseShopeeUrl', () => {
   it('extracts shopId and itemId from a standard product URL', () => {
@@ -35,6 +35,16 @@ describe('parseShopeeUrl', () => {
     const url = 'https://shopee.com.my/product-i.123456.1234567'
     expect(parseShopeeUrl(url)).toEqual({ shopId: null, itemId: null })
   })
+
+  it('extracts shopId and itemId directly from a raw, still-wrapped affiliate URL', () => {
+    const affiliateLink = 'https://s.shopee.com.my/an_redir?origin_link=https%3A%2F%2Fshopee.com.my%2Fproduct-i.123456.12345678&affiliate_id=aff123'
+    expect(parseShopeeUrl(affiliateLink)).toEqual({ shopId: '123456', itemId: '12345678' })
+  })
+
+  it('falls back to matching the raw string on malformed percent-encoding', () => {
+    const url = 'https://shopee.com.my/50%-off-i.123456.12345678'
+    expect(parseShopeeUrl(url)).toEqual({ shopId: '123456', itemId: '12345678' })
+  })
 })
 
 describe('buildAffiliateLink', () => {
@@ -51,9 +61,50 @@ describe('buildAffiliateLink', () => {
     expect(link).toContain('origin_link=')
   })
 
+  it('shaves off the descriptive title slug, keeping only domain + product-i.{shopId}.{itemId}', () => {
+    const url = 'https://shopee.com.my/Tefal-Home-Chef-Smart-Multicooker-(6L)-Free-SS-Inner-Pot-CY601-XA622D-i.23746946.23471758432'
+    const link = buildAffiliateLink(url, 'aff123')
+    expect(link).toBe(
+      'https://s.shopee.com.my/an_redir?origin_link=https%3A%2F%2Fshopee.com.my%2Fproduct-i.23746946.23471758432&affiliate_id=aff123'
+    )
+  })
+
+  it('falls back to the full stripped URL when no product IDs are found', () => {
+    const link = buildAffiliateLink('https://shopee.com.my/some-category-page?x=1', 'aff123')
+    expect(link).toContain(encodeURIComponent('https://shopee.com.my/some-category-page'))
+  })
+
   it('always points to the s.shopee.com.my redirect endpoint', () => {
     const link = buildAffiliateLink('https://shopee.com.my/product-i.123456.12345678', 'x')
     expect(link.startsWith('https://s.shopee.com.my/an_redir?')).toBe(true)
+  })
+})
+
+describe('unwrapAffiliateLink', () => {
+  it('extracts origin_link from a valid affiliate redirect URL', () => {
+    const affiliateLink = 'https://s.shopee.com.my/an_redir?origin_link=https%3A%2F%2Fshopee.com.my%2Fproduct-i.123456.12345678&affiliate_id=aff123'
+    expect(unwrapAffiliateLink(affiliateLink)).toBe('https://shopee.com.my/product-i.123456.12345678')
+  })
+
+  it('passes through a regular shopee.com.my product URL unchanged', () => {
+    const url = 'https://shopee.com.my/product-i.123456.12345678'
+    expect(unwrapAffiliateLink(url)).toBe(url)
+  })
+
+  it('passes through an unrelated URL unchanged', () => {
+    const url = 'https://example.com/some-page'
+    expect(unwrapAffiliateLink(url)).toBe(url)
+  })
+
+  it('returns original when affiliate URL has no origin_link param', () => {
+    const url = 'https://s.shopee.com.my/an_redir?affiliate_id=aff123'
+    expect(unwrapAffiliateLink(url)).toBe(url)
+  })
+
+  it('is idempotent: round-trip through buildAffiliateLink then back', () => {
+    const productUrl = 'https://shopee.com.my/product-i.123456.12345678'
+    const affiliate = buildAffiliateLink(productUrl, 'aff123')
+    expect(unwrapAffiliateLink(affiliate)).toBe(productUrl)
   })
 })
 
